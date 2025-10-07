@@ -1,6 +1,6 @@
 # Aggregation Backend
 
-A simple backend project structured with Domain-Driven Design (DDD) architecture that demonstrates combining data from **three different external sources**.
+A simple backend project structured with Domain-Driven Design (DDD) architecture that demonstrates combining data from 3 external apis.
 
 ---
 
