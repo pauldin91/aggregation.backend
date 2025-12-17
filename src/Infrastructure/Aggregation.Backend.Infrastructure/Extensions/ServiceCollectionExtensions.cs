@@ -8,9 +8,13 @@ using Aggregation.Backend.Infrastructure.Options;
 using Aggregation.Backend.Infrastructure.Services;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 namespace Aggregation.Backend.Infrastructure.Extensions
 {
@@ -29,45 +33,56 @@ namespace Aggregation.Backend.Infrastructure.Extensions
 
             var jwtOptions = new JwtOptions();
             configuration.Bind(nameof(JwtOptions), jwtOptions);
+
+            var extIdOptions = new ExternalIdProviderOptions();
+            configuration.Bind(nameof(ExternalIdProviderOptions), extIdOptions);
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            });
-            //.AddGoogle(opt =>
-            //{
-            //});
-            //.AddJwtBearer(options =>
-            //{
-            //    options.TokenValidationParameters = new TokenValidationParameters
-            //    {
-            //        ValidateIssuer = true,
-            //        ValidateAudience = true,
-            //        ValidateLifetime = true,
-            //        ValidateIssuerSigningKey = true,
-            //        ValidIssuer = jwtOptions.Issuer,
-            //        ValidAudience = jwtOptions.Audience,
-            //        RequireSignedTokens = true,
-            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
-            //    };
+            })
+                .AddOAuth("OAuth2", opt =>
+                {
+                    opt.ClientId = extIdOptions.ClientId;
+                    opt.ClientSecret = extIdOptions.ClientSecret;
+                    opt.AuthorizationEndpoint = extIdOptions.AuthorizationEndpoint;
+                    opt.CallbackPath = "/swagger/oauth2-redirect.html";
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtOptions.Issuer,
+                        ValidAudience = jwtOptions.Audience,
+                        RequireSignedTokens = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+                    };
 
-            //    options.Events = new JwtBearerEvents
-            //    {
-            //        OnTokenValidated = context =>
-            //        {
-            //            var handler = new JwtSecurityTokenHandler();
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnTokenValidated = context =>
+                        {
+                            var handler = new JwtSecurityTokenHandler();
 
-            //            var jwtToken = handler.ReadJwtToken(context.SecurityToken.UnsafeToString());
+                            var jwtToken = handler.ReadJwtToken(context.SecurityToken.UnsafeToString());
 
-            //            if (!string.Equals(jwtToken.Header.Alg, "HS256", StringComparison.OrdinalIgnoreCase))
-            //            {
-            //                context.Fail("Invalid token algorithm");
-            //            }
+                            if (!string.Equals(jwtToken.Header.Alg, "HS256", StringComparison.OrdinalIgnoreCase))
+                            {
+                                context.Fail("Invalid token algorithm");
+                            }
 
-            //            return Task.CompletedTask;
-            //        }
-            //    };
-            //});
+                            return Task.CompletedTask;
+                        }
+                    };
+                })
+
+
+                ;
 
             var allOptions = typeof(NewsOptions).Assembly.GetTypes()
                 .Where(s => s.IsAssignableTo(typeof(IHttpClientOptions)))
