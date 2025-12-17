@@ -14,23 +14,16 @@ builder.Host.UseSerilog(new LoggerConfiguration().ReadFrom.Configuration(builder
 
 builder.Services.AddApplicationExtensions();
 builder.Services.AddInfrastructureExtensions(builder.Configuration);
-
 builder.Services.AddWebApiExtensions(builder.Configuration);
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("SwaggerCors", policy =>
-    {
-        policy
-            .AllowAnyOrigin()     
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
-});
 
 var app = builder.Build();
 
 var extIdOptions = new ExternalIdProviderOptions();
 app.Configuration.Bind(nameof(ExternalIdProviderOptions), extIdOptions);
+
+app.UseExceptionHandler("/Error");
+// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+app.UseHsts();
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
@@ -45,9 +38,9 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 
-app.UseCors("SwaggerCors");
 
 app.UseOutputCache();
 
@@ -58,6 +51,7 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapRazorPages();
 
 using var scope = app.Services.CreateScope();
 

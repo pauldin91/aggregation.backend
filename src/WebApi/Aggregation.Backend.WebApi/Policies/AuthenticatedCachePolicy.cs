@@ -27,14 +27,14 @@ namespace Aggregation.Backend.WebApi.Policies
 
         public async Task<bool> ValidateToken(string token) {
             var handler = new JwtSecurityTokenHandler();
-            var tokenValidationParams = new TokenValidationParameters { 
+            var tokenValidationParams = new TokenValidationParameters {
                 ValidateIssuer = true,
-                ValidateAudience = true,
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = jwtOptions.Value.Issuer,
                 ValidAudience = jwtOptions.Value.Audience,
+                ValidAudiences = [ jwtOptions.Value.Audience ],
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.SecretKey)),
-                ClockSkew=TimeSpan.FromSeconds(5),
+                ClockSkew = TimeSpan.FromSeconds(5),
             };
             var result = await handler.ValidateTokenAsync(token, tokenValidationParams);
             return result.IsValid;

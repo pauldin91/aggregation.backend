@@ -42,13 +42,6 @@ namespace Aggregation.Backend.Infrastructure.Extensions
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-                .AddOAuth("OAuth2", opt =>
-                {
-                    opt.ClientId = extIdOptions.ClientId;
-                    opt.ClientSecret = extIdOptions.ClientSecret;
-                    opt.AuthorizationEndpoint = extIdOptions.AuthorizationEndpoint;
-                    opt.CallbackPath = "/swagger/oauth2-redirect.html";
-                })
                 .AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
@@ -59,6 +52,7 @@ namespace Aggregation.Backend.Infrastructure.Extensions
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = jwtOptions.Issuer,
                         ValidAudience = jwtOptions.Audience,
+                        ValidAudiences = [jwtOptions.Audience],
                         RequireSignedTokens = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
                     };

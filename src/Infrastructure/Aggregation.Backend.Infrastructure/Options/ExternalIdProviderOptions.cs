@@ -6,5 +6,6 @@
         public string ClientSecret { get; set; }
         public string AuthorizationEndpoint { get; set; }
         public string TokenEndpoint { get; set; }
+        public string UserApi { get; set; }
     }
 }

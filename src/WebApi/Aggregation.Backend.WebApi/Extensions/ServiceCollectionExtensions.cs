@@ -2,10 +2,10 @@
 using Aggregation.Backend.Infrastructure.Options;
 using Aggregation.Backend.WebApi.Policies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.OpenApi.Models;
+using System.Configuration;
 using System.Reflection;
 
 namespace Aggregation.Backend.WebApi.Extensions
@@ -23,10 +23,32 @@ namespace Aggregation.Backend.WebApi.Extensions
                 options.Filters.Add(new AuthorizeFilter(policy));
             });
 
+            services.AddEndpointsApiExplorer();
+            services.AddRazorPages(options =>
+            {
+                options.Conventions.AllowAnonymousToAreaFolder("Identity", "/Account");
+            });
+            services.AddSwaggerDefinitions(configuration);
+
+            services.AddOutputCache(s =>
+            {
+                s.DefaultExpirationTimeSpan = TimeSpan.FromMinutes(10);
+                s.AddPolicy(Domain.Constants.Policies.AggregatesCachePolicy, builder =>
+
+                     builder.AddPolicy<AuthenticatedCachePolicy>()
+                     .SetVaryByQuery(Domain.Constants.Policies.KeywordQueryParam, Domain.Constants.Policies.FilterQueryParam, Domain.Constants.Policies.SortQueryParam, Domain.Constants.Policies.SortTypeQueryParam)
+                 , true);
+            });
+
+            return services;
+        }
+
+        private static IServiceCollection AddSwaggerDefinitions(this IServiceCollection services,IConfiguration configuration)
+        {
             var extIdOptions = new ExternalIdProviderOptions();
             configuration.Bind(nameof(ExternalIdProviderOptions), extIdOptions);
 
-            services.AddEndpointsApiExplorer();
+
             services.AddSwaggerGen(options =>
             {
                 var version = $"v{ApiEndpoints.Version}";
@@ -94,15 +116,6 @@ namespace Aggregation.Backend.WebApi.Extensions
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 options.IncludeXmlComments(xmlPath);
-            });
-            services.AddOutputCache(s =>
-            {
-                s.DefaultExpirationTimeSpan = TimeSpan.FromMinutes(10);
-                s.AddPolicy(Domain.Constants.Policies.AggregatesCachePolicy, builder =>
-
-                     builder.AddPolicy<AuthenticatedCachePolicy>()
-                     .SetVaryByQuery(Domain.Constants.Policies.KeywordQueryParam, Domain.Constants.Policies.FilterQueryParam, Domain.Constants.Policies.SortQueryParam, Domain.Constants.Policies.SortTypeQueryParam)
-                 , true);
             });
 
             return services;
