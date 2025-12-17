@@ -1,12 +1,10 @@
 using Aggregation.Backend.Application.Extensions;
+using Aggregation.Backend.Infrastructure.Data.Contexts;
 using Aggregation.Backend.Infrastructure.Extensions;
 using Aggregation.Backend.WebApi.Extensions;
 using Aggregation.Backend.WebApi.Middlewares;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
-using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,7 +30,14 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
-app.Run();
+using var scope = app.Services.CreateScope();
+
+var db = scope.ServiceProvider.GetRequiredService<AggregationBackendIdentityDbContext>();
+
+
+db.Database.EnsureCreated();
+await db.Database.MigrateAsync();
+
+await app.RunAsync();
