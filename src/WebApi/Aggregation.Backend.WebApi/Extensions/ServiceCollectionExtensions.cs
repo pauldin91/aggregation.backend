@@ -23,6 +23,13 @@ namespace Aggregation.Backend.WebApi.Extensions
                 options.Filters.Add(new AuthorizeFilter(policy));
             });
 
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Identity/Account/Login";
+                options.LogoutPath = "/Identity/Account/Logout";
+                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+            });
+
             services.AddEndpointsApiExplorer();
             services.AddRazorPages(options =>
             {

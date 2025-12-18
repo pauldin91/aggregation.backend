@@ -8,7 +8,7 @@ using Aggregation.Backend.Infrastructure.Options;
 using Aggregation.Backend.Infrastructure.Services;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +29,8 @@ namespace Aggregation.Backend.Infrastructure.Extensions
 
             services
                 .AddDefaultIdentity<AggregationBackendUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddDefaultUI()
+                .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<AggregationBackendIdentityDbContext>();
 
             var jwtOptions = new JwtOptions();
@@ -42,41 +44,12 @@ namespace Aggregation.Backend.Infrastructure.Extensions
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = jwtOptions.Issuer,
-                        ValidAudience = jwtOptions.Audience,
-                        ValidAudiences = [jwtOptions.Audience],
-                        RequireSignedTokens = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
-                    };
-
-                    options.Events = new JwtBearerEvents
-                    {
-                        OnTokenValidated = context =>
-                        {
-                            var handler = new JwtSecurityTokenHandler();
-
-                            var jwtToken = handler.ReadJwtToken(context.SecurityToken.UnsafeToString());
-
-                            if (!string.Equals(jwtToken.Header.Alg, "HS256", StringComparison.OrdinalIgnoreCase))
-                            {
-                                context.Fail("Invalid token algorithm");
-                            }
-
-                            return Task.CompletedTask;
-                        }
-                    };
-                })
-
-
-                ;
+              .AddGitHub(options =>
+              {
+                  options.ClientId = extIdOptions.ClientId;
+                  options.ClientSecret = extIdOptions.ClientSecret;
+                  options.Scope.Add("user:email");
+              });
 
             var allOptions = typeof(NewsOptions).Assembly.GetTypes()
                 .Where(s => s.IsAssignableTo(typeof(IHttpClientOptions)))
