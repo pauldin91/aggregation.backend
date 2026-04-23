@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3B6277C9-CEA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebApi", "WebApi", "{AAEE992D-96A6-4F7F-8BED-3E9D7910031B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aggregation.Backend.WebApi", "src\WebApi\Aggregation.Backend.WebApi\Aggregation.Backend.WebApi.csproj", "{0E1CD70F-D818-470D-B4A5-1E5DDF2C0B16}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aggregation.Backend.WebApi", "src/WebApi/Aggregation.Backend.WebApi/Aggregation.Backend.WebApi.csproj", "{0E1CD70F-D818-470D-B4A5-1E5DDF2C0B16}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{5473448A-8E89-453F-8932-09AD5CB38E13}"
 EndProject
@@ -15,15 +15,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{00CE41
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{510D651D-5E94-4F66-ABF8-0FE6C993D388}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aggregation.Backend.Infrastructure", "src\Infrastructure\Aggregation.Backend.Infrastructure\Aggregation.Backend.Infrastructure.csproj", "{7BDD0AB2-66C5-4512-B5C8-2DE395A3E20C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aggregation.Backend.Infrastructure", "src/Infrastructure/Aggregation.Backend.Infrastructure/Aggregation.Backend.Infrastructure.csproj", "{7BDD0AB2-66C5-4512-B5C8-2DE395A3E20C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aggregation.Backend.Domain", "src\Domain\Aggregation.Backend.Domain\Aggregation.Backend.Domain.csproj", "{00A65901-096E-42CB-AA06-73A2F1AFFBD6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aggregation.Backend.Domain", "src/Domain/Aggregation.Backend.Domain/Aggregation.Backend.Domain.csproj", "{00A65901-096E-42CB-AA06-73A2F1AFFBD6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aggregation.Backend.Application", "src\Application\Aggregation.Backend.Application\Aggregation.Backend.Application.csproj", "{8D221CFF-AEBB-41CF-876A-AC9D109A6FAA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aggregation.Backend.Application", "src/Application/Aggregation.Backend.Application/Aggregation.Backend.Application.csproj", "{8D221CFF-AEBB-41CF-876A-AC9D109A6FAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aggregation.Backend.Api.Tests", "src\WebApi\Aggregation.Backend.Api.Tests\Aggregation.Backend.Api.Tests.csproj", "{9A24F614-B504-4AF3-A752-66DECB54A2B3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aggregation.Backend.Api.Tests", "src/WebApi/Aggregation.Backend.Api.Tests/Aggregation.Backend.Api.Tests.csproj", "{9A24F614-B504-4AF3-A752-66DECB54A2B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agregation.Backend.Infrastructure.Tests", "src\Infrastructure\Agregation.Backend.Infrastructure.Tests\Agregation.Backend.Infrastructure.Tests.csproj", "{F91C8B6E-0658-4F3D-9DF1-098959C01046}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agregation.Backend.Infrastructure.Tests", "src/Infrastructure/Agregation.Backend.Infrastructure.Tests/Agregation.Backend.Infrastructure.Tests.csproj", "{F91C8B6E-0658-4F3D-9DF1-098959C01046}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
