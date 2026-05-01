@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
@@ -51,6 +52,25 @@ namespace Aggregation.Backend.Infrastructure.Extensions
                   options.Scope.Add("user:email");
               });
 
+            services.AddHttpClientFromOptions(configuration);
+
+            services.Configure<StatisticsAnalyzerServiceOptions>(configuration.GetSection(nameof(StatisticsAnalyzerServiceOptions)));
+            services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
+            services.Configure<BucketOptions>(configuration.GetSection(nameof(BucketOptions)));
+            services.AddTransient<INewsService, NewsService>();
+            services.AddTransient<IAirPollutionService, AirPollutionService>();
+            services.AddTransient<IStockMarketFeedService, StockMarketFeedService>();
+            services.AddHostedService<StatisticsAnalyzerService>();
+            services.AddScoped<TokenGenerator>();
+            services.AddSingleton<ExternalApiRequestTimingCache>();
+            services.AddSingleton<PerformanceStatisticsCache>();
+            services.AddSingleton<LoginStore>();
+
+            return services;
+        }
+        
+        private static IServiceCollection AddHttpClientFromOptions(this IServiceCollection services,IConfiguration configuration)
+        {
             var allOptions = typeof(NewsOptions).Assembly.GetTypes()
                 .Where(s => s.IsAssignableTo(typeof(IHttpClientOptions)))
                 .ToList();
@@ -65,11 +85,11 @@ namespace Aggregation.Backend.Infrastructure.Extensions
                     .First(m => m.Name == "Configure" && m.GetParameters().Length == 2)
                     .MakeGenericMethod(type);
 
-                configureMethod.Invoke(null, new object[] { services, configuration.GetSection(type.Name) });
+                configureMethod.Invoke(null, [ services, configuration.GetSection(type.Name) ]);
 
                 services.AddHttpClient(type.Name, client =>
                 {
-                    client.BaseAddress = new Uri(options.BaseUrl);
+                    client.BaseAddress = new Uri(options?.BaseUrl);
                     client.DefaultRequestHeaders.Add("user-agent", "AggregationApi/0.1");
                 });
                 var ifc = typeof(IHttpClientWrapper<>).MakeGenericType(type);
@@ -77,18 +97,6 @@ namespace Aggregation.Backend.Infrastructure.Extensions
 
                 services.Add(new ServiceDescriptor(ifc, impl, ServiceLifetime.Singleton));
             }
-            services.Configure<StatisticsAnalyzerServiceOptions>(configuration.GetSection(nameof(StatisticsAnalyzerServiceOptions)));
-            services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
-            services.Configure<BucketOptions>(configuration.GetSection(nameof(BucketOptions)));
-            services.AddTransient<INewsService, NewsService>();
-            services.AddTransient<IAirPollutionService, AirPollutionService>();
-            services.AddTransient<IStockMarketFeedService, StockMarketFeedService>();
-            services.AddHostedService<StatisticsAnalyzerService>();
-            services.AddScoped<TokenGenerator>();
-            services.AddSingleton<ExternalApiRequestTimingCache>();
-            services.AddSingleton<PerformanceStatisticsCache>();
-            services.AddSingleton<LoginStore>();
-
             return services;
         }
     }

@@ -5,6 +5,8 @@
 /modules.xml
 /contentModel.xml
 /.idea.Aggregation.Backend.iml
+# Editor-based HTTP Client requests
+/httpRequests/
 /projectSettingsUpdater.xml
 # Ignored default folder with query files
 /queries/
@@ -12,5 +14,4 @@
 /dataSources/
 /dataSources.local.xml
 # Editor-based HTTP Client requests
-/httpRequests/
 .idea/
