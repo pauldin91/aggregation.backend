@@ -29,7 +29,7 @@ namespace Aggregation.Backend.Infrastructure.Extensions
             services.AddDbContext<AggregationBackendIdentityDbContext>(options => options.UseNpgsql(configuration.GetConnectionString(nameof(AggregationBackendIdentityDbContext))));
 
             services
-                .AddDefaultIdentity<AggregationBackendUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddDefaultIdentity<AggregationBackendUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddDefaultUI()
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<AggregationBackendIdentityDbContext>();
