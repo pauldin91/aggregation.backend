@@ -13,7 +13,7 @@
             {
                 <div class="alert alert-danger">@Model.ErrorMessage</div>
             }
-            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="/" method="post">
                 @foreach (var provider in Model.ExternalLogins)
                 {
                     <button type="submit" class="w-100 btn btn-lg btn-dark" name="provider" value="@provider.Name">Sign in with @provider.DisplayName</button>

@@ -64,7 +64,6 @@ namespace Aggregation.Backend.Infrastructure.Extensions
             services.AddScoped<TokenGenerator>();
             services.AddSingleton<ExternalApiRequestTimingCache>();
             services.AddSingleton<PerformanceStatisticsCache>();
-            services.AddSingleton<LoginStore>();
 
             return services;
         }

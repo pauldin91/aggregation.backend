@@ -1,11 +1,55 @@
-﻿@page
-@using WebApplication2.Pages
-@model IndexModel
+@page
+@model Aggregation.Backend.WebApi.Pages.IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Dashboard";
+    var parts = Model.AccessToken?.Split('.') ?? Array.Empty<string>();
+    string Decode(string b64) {
+        var padded = b64.Replace('-', '+').Replace('_', '/');
+        padded = padded.PadRight(padded.Length + (4 - padded.Length % 4) % 4, '=');
+        return System.Text.Json.JsonSerializer.Serialize(
+            System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(
+                System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(padded))),
+            new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+    }
+    var header  = parts.Length > 0 ? Decode(parts[0]) : "";
+    var payload = parts.Length > 1 ? Decode(parts[1]) : "";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="row g-4 mt-2">
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Access Token</span>
+                <button class="btn btn-sm btn-outline-secondary" onclick="copyToken()">Copy</button>
+            </div>
+            <div class="card-body">
+                <pre style="font-size:.75rem;word-break:break-all;white-space:pre-wrap;"><span class="text-danger">@(parts.Length > 0 ? parts[0] : "")</span>.<span class="text-primary">@(parts.Length > 1 ? parts[1] : "")</span>.<span class="text-success">@(parts.Length > 2 ? parts[2] : "")</span></pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">Decoded</div>
+            <div class="card-body">
+                <p class="text-muted mb-1" style="font-size:.75rem;">HEADER</p>
+                <pre class="bg-light p-2 rounded" style="font-size:.75rem;">@header</pre>
+                <p class="text-muted mb-1 mt-3" style="font-size:.75rem;">PAYLOAD</p>
+                <pre class="bg-light p-2 rounded" style="font-size:.75rem;">@payload</pre>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<input type="hidden" id="raw-token" value="@Model.AccessToken" />
+
+@section Scripts {
+<script>
+    function copyToken() {
+        navigator.clipboard.writeText(document.getElementById('raw-token').value)
+            .then(() => alert('Token copied!'));
+    }
+</script>
+}

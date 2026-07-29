@@ -37,6 +37,7 @@ namespace Aggregation.Backend.WebApi.Areas.Identity.Pages.Account
 
         public IActionResult OnPost(string provider, string returnUrl = null)
         {
+            returnUrl = Url.Content("~/");
             var redirectUrl = Url.Page("./ExternalLogin", pageHandler: "Callback", values: new { returnUrl });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return new ChallengeResult(provider, properties);
@@ -44,7 +45,7 @@ namespace Aggregation.Backend.WebApi.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
         {
-            returnUrl ??= Url.Content("~/");
+            returnUrl = Url.Content("~/");
 
             if (remoteError != null)
             {
