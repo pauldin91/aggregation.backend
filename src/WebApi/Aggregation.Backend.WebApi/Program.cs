@@ -35,7 +35,6 @@ try
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Aggregation API v1");
 
         c.OAuthClientId(extIdOptions.ClientId);
-        //c.OAuthClientSecret(extIdOptions.ClientSecret);
         c.OAuth2RedirectUrl("https://localhost:7064/swagger/oauth2-redirect.html");
         c.OAuthScopes("read:user", "user:email");
         c.OAuthUsePkce();
@@ -61,7 +60,7 @@ try
 
     var db = scope.ServiceProvider.GetRequiredService<AggregationBackendIdentityDbContext>();
 
-    db.Database.EnsureCreated();
+    await db.Database.EnsureCreatedAsync();
     await db.Database.MigrateAsync();
 
     await app.RunAsync();
