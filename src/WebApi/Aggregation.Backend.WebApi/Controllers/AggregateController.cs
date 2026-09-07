@@ -9,15 +9,8 @@ using Microsoft.AspNetCore.OutputCaching;
 namespace Aggregation.Backend.WebApi.Controllers
 {
     [ApiController]
-    public class AggregateController : ControllerBase
+    public class AggregateController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public AggregateController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Retrieves aggregated news items based on a keyword and optional filters.
         /// </summary>
@@ -62,7 +55,7 @@ namespace Aggregation.Backend.WebApi.Controllers
         [OutputCache(PolicyName = Domain.Constants.Policies.AggregatesCachePolicy)]
         public async Task<IActionResult> GetNewsAsync([FromQuery] string keyword, [FromQuery] string? filterBy, [FromQuery] string? orderBy, CancellationToken cancellationToken, [FromQuery] bool asc = true)
         {
-            var result = await _mediator.Send(new AggregatesQuery(keyword, filterBy, orderBy, asc), cancellationToken);
+            var result = await mediator.Send(new AggregatesQuery(keyword, filterBy, orderBy, asc), cancellationToken);
 
             return Ok(result);
         }
