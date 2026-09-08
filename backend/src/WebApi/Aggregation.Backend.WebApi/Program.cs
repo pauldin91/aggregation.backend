@@ -52,7 +52,6 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
-    app.MapRazorPages();
 
     using var scope = app.Services.CreateScope();
 
