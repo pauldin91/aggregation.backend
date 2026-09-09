@@ -22,24 +22,14 @@ try
 
     var app = builder.Build();
 
-    var extIdOptions = new ExternalIdProviderOptions();
-    app.Configuration.Bind(nameof(ExternalIdProviderOptions), extIdOptions);
-
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Aggregation API v1");
-        c.OAuthClientId(extIdOptions.ClientId);
-        c.OAuthScopes("read:user", "user:email");
-        c.OAuthUsePkce();
-    });
+    app.UseSwaggerUI();
 
     app.UseHttpsRedirection();
-    app.UseStaticFiles();
     app.UseRouting();
 
 
@@ -53,16 +43,9 @@ try
     app.UseAuthorization();
     app.MapControllers();
 
-    using var scope = app.Services.CreateScope();
-
-    var db = scope.ServiceProvider.GetRequiredService<AggregationBackendIdentityDbContext>();
-
-    await db.Database.EnsureCreatedAsync();
-    await db.Database.MigrateAsync();
-
     await app.RunAsync();
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "Unhandled exception");
+    Log.Fatal(ex, "Unhandled exception {0}", ex.Message);
 }

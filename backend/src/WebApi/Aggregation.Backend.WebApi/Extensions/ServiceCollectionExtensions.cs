@@ -23,18 +23,8 @@ namespace Aggregation.Backend.WebApi.Extensions
                 options.Filters.Add(new AuthorizeFilter(policy));
             });
 
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.LoginPath = "/Identity/Account/Login";
-                options.LogoutPath = "/Identity/Account/Logout";
-                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-            });
-
             services.AddEndpointsApiExplorer();
-            services.AddRazorPages(options =>
-            {
-                options.Conventions.AllowAnonymousToAreaFolder("Identity", "/Account");
-            });
+
             services.AddSwaggerDefinitions(configuration);
 
             services.AddOutputCache(s =>
@@ -50,7 +40,7 @@ namespace Aggregation.Backend.WebApi.Extensions
             return services;
         }
 
-        private static IServiceCollection AddSwaggerDefinitions(this IServiceCollection services,IConfiguration configuration)
+        private static IServiceCollection AddSwaggerDefinitions(this IServiceCollection services, IConfiguration configuration)
         {
             var extIdOptions = new ExternalIdProviderOptions();
             configuration.Bind(nameof(ExternalIdProviderOptions), extIdOptions);
