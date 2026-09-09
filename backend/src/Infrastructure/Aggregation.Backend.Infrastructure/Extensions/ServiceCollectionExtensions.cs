@@ -13,8 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Linq;
-using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 namespace Aggregation.Backend.Infrastructure.Extensions
@@ -26,6 +24,13 @@ namespace Aggregation.Backend.Infrastructure.Extensions
             services.AddHangfire(cfg => { cfg.UseInMemoryStorage(); });
             services.AddHangfireServer();
 
+            services.AddDbContext<AggregationBackendIdentityDbContext>(options =>
+                options.UseNpgsql(configuration.GetConnectionString(nameof(AggregationBackendIdentityDbContext))));
+
+            services
+                .AddDefaultIdentity<AggregationBackendUser>(options => options.SignIn.RequireConfirmedAccount = false)
+                .AddDefaultTokenProviders()
+                .AddEntityFrameworkStores<AggregationBackendIdentityDbContext>();
 
             var jwtOptions = new JwtOptions();
             configuration.Bind(nameof(JwtOptions), jwtOptions);
@@ -33,17 +38,27 @@ namespace Aggregation.Backend.Infrastructure.Extensions
             var extIdOptions = new ExternalIdProviderOptions();
             configuration.Bind(nameof(ExternalIdProviderOptions), extIdOptions);
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-              .AddGitHub(options =>
-              {
-                  options.ClientId = extIdOptions.ClientId;
-                  options.ClientSecret = extIdOptions.ClientSecret;
-                  options.Scope.Add("user:email");
-              });
+            // JWT for API controllers; cookie scheme (registered by AddDefaultIdentity) handles the OAuth2 callback
+            services.AddAuthentication()
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtOptions.Issuer,
+                        ValidAudience = jwtOptions.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey))
+                    };
+                })
+                .AddGitHub(options =>
+                {
+                    options.ClientId = extIdOptions.ClientId;
+                    options.ClientSecret = extIdOptions.ClientSecret;
+                    options.Scope.Add("user:email");
+                });
 
             services.AddHttpClientFromOptions(configuration);
 

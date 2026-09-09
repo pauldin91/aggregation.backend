@@ -8,7 +8,7 @@
         public const string Statistics = "statistics";
         public const string GetAggregatesRoute = $"{Api}/v{Version}/{Aggregates}";
         public const string GetStatisticsRoute = $"{Api}/v{Version}/{Statistics}";
-        public const string Authenticate = $"{Api}/v{Version}/auth";
+        public const string Callback = $"auth/github/callback";
 
     }
 }
