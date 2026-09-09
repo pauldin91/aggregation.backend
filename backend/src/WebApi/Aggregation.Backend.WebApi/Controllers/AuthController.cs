@@ -52,7 +52,7 @@ namespace Aggregation.Backend.WebApi.Controllers
             var handler = new JwtSecurityTokenHandler();
             string tokenString = handler.WriteToken(token);
 
-            return Ok(new { CodeAccessSecurityAttribute = code, IssuerSerial = iss });
+            return Ok(new { AccessToken = tokenString });
         }
     }
 }
