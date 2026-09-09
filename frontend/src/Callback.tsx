@@ -9,7 +9,7 @@ export default function Callback() {
 
         if (code) {
             // Send code to backend
-            fetch('http://localhost:5000/auth/github/callback', {
+            fetch('http://localhost:5146/auth/github/callback', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code }),

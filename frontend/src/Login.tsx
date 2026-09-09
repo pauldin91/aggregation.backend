@@ -1,8 +1,8 @@
 
 export default function Login() {
   const loginWithGitHub = () => {
-    const clientID = "YOUR_GITHUB_CLIENT_ID";
-    const redirectURI = "http://localhost:3000/auth/github/callback";
+    const clientID = import.meta.env.VITE_GITHUB_CLIENT_ID;
+    const redirectURI = encodeURI(import.meta.env.VITE_GITHUB_REDIRECT_URI);
     window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientID}&redirect_uri=${redirectURI}`;
   };
 
