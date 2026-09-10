@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "./api";
 
 export default function Callback() {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ export default function Callback() {
     const iss = urlParams.get("iss");
 
     if (code && iss) {
-      fetch("http://localhost:5146/auth/github/callback", {
+      apiFetch("auth/github/callback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, iss }),
