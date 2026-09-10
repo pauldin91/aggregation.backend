@@ -1,26 +1,34 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Callback() {
-    useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        console.log('Authorization Code:', code);
-        console.log('urlParams: ',urlParams);
+  const navigate = useNavigate();
 
-        if (code) {
-            // Send code to backend
-            fetch('http://localhost:5146/auth/github/callback', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('data are: ',data);
-                // Handle the response from your backend. Maybe store an authentication token or set user data.
-            });
-        }
-    }, []);
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+    const iss = urlParams.get("iss");
 
-    return <div>Processing GitHub login...</div>;
+    if (code && iss) {
+      fetch("http://localhost:5146/auth/github/callback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, iss }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.accessToken) {
+            localStorage.setItem("access_token", data.accessToken);
+            navigate("/dashboard");
+          } else {
+            navigate("/");
+          }
+        })
+        .catch(() => navigate("/"));
+    } else {
+      navigate("/");
+    }
+  }, []);
+
+  return <div>Processing GitHub login...</div>;
 }

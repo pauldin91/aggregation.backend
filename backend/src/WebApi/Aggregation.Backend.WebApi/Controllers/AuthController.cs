@@ -13,21 +13,28 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using NuGet.Packaging.Signing;
 
 namespace Aggregation.Backend.WebApi.Controllers
 {
+    public class CallbackBody
+    {
+        public string Code { get; set; }
+        public string Iss { get; set; }
+    }
     [AllowAnonymous]
     [ApiController]
     public class AuthController(IOptions<JwtOptions> tokenOptions) : ControllerBase
     {
-        [HttpGet(ApiEndpoints.Callback)]
+        [HttpPost(ApiEndpoints.Callback)]
         [ProducesResponseType(typeof(List<AggregatedResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> ExchangeCode([FromQuery] string? code, [FromQuery] string? iss, CancellationToken cancellationToken)
+        public async Task<IActionResult> ExchangeCode([FromBody] CallbackBody? body, CancellationToken cancellationToken)
         {
-            Console.WriteLine("Received code {0} and issuer {1}", code, iss);
+
+            Console.WriteLine("got code: ", body.Code);
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenOptions.Value.SecretKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 

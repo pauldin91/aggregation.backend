@@ -1,5 +1,5 @@
 import { useState, type JSX } from 'react'
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import './App.css'
 import Home from './Home';
 import Login from './Login';
@@ -10,12 +10,7 @@ function App() {
 
   const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
     const token = localStorage.getItem("access_token");
-
-    if (!token) {
-      Login
-    }
-
-    return children;
+    return token ? children : <Navigate to="/" replace />;
   };
   return (
     <BrowserRouter>
