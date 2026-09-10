@@ -7,7 +7,7 @@ using System.Net;
 namespace Aggregation.Backend.Infrastructure.Services
 {
     public class HttpClientWrapper<T>(IHttpClientFactory httpClientFactory, ExternalApiRequestTimingCache externalApiRequestTimingCache) : IHttpClientWrapper<T>
-        where T : IHttpClientOptions, new()
+        where T : IHttpClientApiKeyOptions, new()
     {
         private readonly HttpClient _httpClient = httpClientFactory.CreateClient(typeof(T).Name);
         private static AsyncPolicy<HttpResponseMessage> combinedPolicy = FallbackPolicy();

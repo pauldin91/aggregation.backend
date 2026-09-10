@@ -66,24 +66,6 @@ namespace Aggregation.Backend.WebApi.Extensions
                     Scheme = "Bearer"
                 });
 
-                // options.AddSecurityDefinition("OAuth2", new OpenApiSecurityScheme
-                // {
-                //     Type = SecuritySchemeType.OAuth2,
-                //     Flows = new OpenApiOAuthFlows
-                //     {
-                //         AuthorizationCode = new OpenApiOAuthFlow
-                //         {
-                //             AuthorizationUrl = new Uri(extIdOptions.AuthorizationEndpoint),
-                //             TokenUrl = new Uri(extIdOptions.TokenEndpoint),
-                //             Scopes = new Dictionary<string, string>
-                //              {
-                //                  { "read:user", "Read user profile" },
-                //                  {"user:email","Read user email" }
-                //              }
-                //         }
-                //     }
-                // });
-
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {

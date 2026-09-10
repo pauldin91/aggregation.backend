@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Agregation.Backend.Infrastructure.Tests.Helpers
 {
-    public class MockOptions : IHttpClientOptions
+    public class MockOptions : IHttpClientApiKeyOptions
     {
         public string BaseUrl { get; set; }
         public string ListUri { get; set; }

@@ -2,7 +2,7 @@
 
 namespace Aggregation.Backend.Infrastructure.Options
 {
-    public class StockMarketFeedOptions : IHttpClientOptions
+    public class StockMarketFeedOptions : IHttpClientApiKeyOptions
     {
         public string BaseUrl { get; set; }
         public string ListUri { get; set; }

@@ -1,11 +1,13 @@
-﻿namespace Aggregation.Backend.Infrastructure.Options
+﻿using Aggregation.Backend.Application.Interfaces;
+
+namespace Aggregation.Backend.Infrastructure.Options
 {
-    public class ExternalIdProviderOptions
+    public class ExternalIdProviderOptions : IHttpOAuth2ClientOptions
     {
+        public string Scope { get ; set ; }
+        public string TokenUrl { get ; set ; }
+        public string BaseUrl { get ; set ; }
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
-        public string AuthorizationEndpoint { get; set; }
-        public string TokenEndpoint { get; set; }
-        public string UserApi { get; set; }
     }
 }

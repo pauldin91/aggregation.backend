@@ -24,13 +24,13 @@ namespace Aggregation.Backend.Infrastructure.Extensions
             services.AddHangfire(cfg => { cfg.UseInMemoryStorage(); });
             services.AddHangfireServer();
 
-            services.AddDbContext<AggregationBackendIdentityDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString(nameof(AggregationBackendIdentityDbContext))));
+            // services.AddDbContext<AggregationBackendIdentityDbContext>(options =>
+            //     options.UseNpgsql(configuration.GetConnectionString(nameof(AggregationBackendIdentityDbContext))));
 
-            services
-                .AddDefaultIdentity<AggregationBackendUser>(options => options.SignIn.RequireConfirmedAccount = false)
-                .AddDefaultTokenProviders()
-                .AddEntityFrameworkStores<AggregationBackendIdentityDbContext>();
+            // services
+            //     .AddDefaultIdentity<AggregationBackendUser>(options => options.SignIn.RequireConfirmedAccount = false)
+            //     .AddDefaultTokenProviders()
+            //     .AddEntityFrameworkStores<AggregationBackendIdentityDbContext>();
 
             var jwtOptions = new JwtOptions();
             configuration.Bind(nameof(JwtOptions), jwtOptions);
@@ -39,7 +39,7 @@ namespace Aggregation.Backend.Infrastructure.Extensions
             configuration.Bind(nameof(ExternalIdProviderOptions), extIdOptions);
 
             // JWT for API controllers; cookie scheme (registered by AddDefaultIdentity) handles the OAuth2 callback
-            services.AddAuthentication()
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
@@ -49,7 +49,7 @@ namespace Aggregation.Backend.Infrastructure.Extensions
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = jwtOptions.Issuer,
-                        ValidAudience = jwtOptions.Audience,
+                        ValidAudiences = [jwtOptions.Audience],
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey))
                     };
                 })
@@ -73,18 +73,26 @@ namespace Aggregation.Backend.Infrastructure.Extensions
             services.AddSingleton<ExternalApiRequestTimingCache>();
             services.AddSingleton<PerformanceStatisticsCache>();
 
+
+            
+            services.AddHttpClient("github", cfg =>
+            {
+
+            });
+
+
             return services;
         }
-        
-        private static IServiceCollection AddHttpClientFromOptions(this IServiceCollection services,IConfiguration configuration)
+
+        private static IServiceCollection AddHttpClientFromOptions(this IServiceCollection services, IConfiguration configuration)
         {
             var allOptions = typeof(NewsOptions).Assembly.GetTypes()
-                .Where(s => s.IsAssignableTo(typeof(IHttpClientOptions)))
+                .Where(s => s.IsAssignableTo(typeof(IHttpClientApiKeyOptions)))
                 .ToList();
 
             foreach (var type in allOptions)
             {
-                var options = (IHttpClientOptions)Activator.CreateInstance(type);
+                var options = (IHttpClientApiKeyOptions)Activator.CreateInstance(type);
                 configuration.Bind(type.Name, options);
 
                 var configureMethod = typeof(OptionsConfigurationServiceCollectionExtensions)
@@ -92,7 +100,7 @@ namespace Aggregation.Backend.Infrastructure.Extensions
                     .First(m => m.Name == "Configure" && m.GetParameters().Length == 2)
                     .MakeGenericMethod(type);
 
-                configureMethod.Invoke(null, [ services, configuration.GetSection(type.Name) ]);
+                configureMethod.Invoke(null, [services, configuration.GetSection(type.Name)]);
 
                 services.AddHttpClient(type.Name, client =>
                 {
