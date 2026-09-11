@@ -8,6 +8,7 @@ using Aggregation.Backend.Application.Interfaces;
 using Aggregation.Backend.Domain.Constants;
 using Aggregation.Backend.Domain.Dtos.Aggregates;
 using Aggregation.Backend.Domain.Dtos.Auth;
+using Aggregation.Backend.Domain.Interfaces;
 using Aggregation.Backend.Infrastructure.Options;
 using Humanizer;
 using MediatR;
@@ -39,11 +40,14 @@ namespace Aggregation.Backend.WebApi.Controllers
         private readonly HttpClient _client;
         private readonly IHttpOAuth2ClientOptions _extIdProvider;
         private readonly JwtOptions _tokenOptions;
-        public AuthController(IHttpClientFactory factory, IConfiguration configuration)
+
+        private readonly ITokenGenerator _tokenGenerator;
+        public AuthController(IHttpClientFactory factory, IConfiguration configuration, ITokenGenerator tokenGenerator)
         {
             _client = factory.CreateClient(typeof(ExternalIdProviderOptions).Name);
-            _extIdProvider = ConfigurationBinder.Get<ExternalIdProviderOptions>(configuration.GetSection(typeof(ExternalIdProviderOptions).Name));
-            _tokenOptions = ConfigurationBinder.Get<JwtOptions>(configuration.GetSection(typeof(JwtOptions).Name));
+            _extIdProvider = ConfigurationBinder.Get<ExternalIdProviderOptions>(configuration.GetSection(typeof(ExternalIdProviderOptions).Name))!;
+            _tokenOptions = ConfigurationBinder.Get<JwtOptions>(configuration.GetSection(typeof(JwtOptions).Name))!;
+            _tokenGenerator = tokenGenerator;
         }
         [HttpPost(ApiEndpoints.Callback)]
         [ProducesResponseType(typeof(List<AggregatedResponse>), StatusCodes.Status200OK)]
@@ -53,40 +57,38 @@ namespace Aggregation.Backend.WebApi.Controllers
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenOptions.SecretKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            var tokenResponse = await _client.PostAsync(string.Format(_extIdProvider.TokenUrl, _extIdProvider.ClientId), new FormUrlEncodedContent(new Dictionary<string, string>
+            var tokenRequest = new HttpRequestMessage(HttpMethod.Post, _extIdProvider.TokenUrl)
             {
-               { "client_id", _extIdProvider.ClientId},
-                {"client_secret", _extIdProvider.ClientSecret},
-                {"code", body.Code},
-            }), cancellationToken);
-            var tokenResult = await tokenResponse.Content.ReadAsAsync<TokenResponse>();
+                Content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    { "client_id", _extIdProvider.ClientId },
+                    { "client_secret", _extIdProvider.ClientSecret },
+                    { "code", body.Code },
+                })
+            };
+            tokenRequest.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+            var tokenResponse = await _client.SendAsync(tokenRequest, cancellationToken);
+            tokenResponse.EnsureSuccessStatusCode();
+
+            var tokenBody = await tokenResponse.Content.ReadAsStringAsync(cancellationToken);
+            var tokenResult = System.Text.Json.JsonSerializer.Deserialize<TokenResponse>(tokenBody)!;
 
             var requestMessage = new HttpRequestMessage(HttpMethod.Get, "user");
             requestMessage.Headers.Add(HeaderNames.Authorization, string.Format("{0} {1}", "Bearer", tokenResult.AccessToken));
-            var userInfoResponse = await _client.SendAsync(requestMessage,cancellationToken);
+
+            var userInfoResponse = await _client.SendAsync(requestMessage, cancellationToken);
+            userInfoResponse.EnsureSuccessStatusCode();
+
             var userResult = await userInfoResponse.Content.ReadAsAsync<UserInfoResponse>();
 
+            var token = _tokenGenerator.GenerateToken(userResult);
 
-            var claims = new List<Claim>
-{
-                new Claim(JwtRegisteredClaimNames.Sub, userResult.Id.ToString()),      // Subject (User ID)
-                new Claim(JwtRegisteredClaimNames.Email, userResult.Email),
-                new Claim(JwtRegisteredClaimNames.Name, userResult.Name),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // Unique token ID
-            };
-            var token = new JwtSecurityToken(
-                issuer: Request.GetDisplayUrl(),              // Where it came from
-                audience: Request.GetDisplayUrl(),            // Who can use it
-                claims: claims,
-                notBefore: DateTime.UtcNow,
-                expires: DateTime.UtcNow.AddHours(1),    // 1 hour expiration
-                signingCredentials: credentials
-            );
-            var handler = new JwtSecurityTokenHandler();
-            string tokenString = handler.WriteToken(token);
+            return Ok(new { AccessToken = token });
 
-            return Ok(new { AccessToken = tokenString, GithubToken = tokenResponse });
+
+
+
         }
     }
 }

@@ -31,7 +31,7 @@ try
 
     app.UseHttpsRedirection();
     app.UseRouting();
-    app.UseCors(c => c.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+    app.UseCors(c => c.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:5173"));
 
 
     app.UseOutputCache();
