@@ -1,19 +1,18 @@
 ﻿using Aggregation.Backend.Infrastructure.Cache;
 using Aggregation.Backend.Infrastructure.Services;
-using Agregation.Backend.Infrastructure.Tests.Helpers;
+using Aggregation.Backend.Infrastructure.Tests.Helpers;
 using Moq;
 using Moq.Protected;
 using System.Net;
 
-namespace Agregation.Backend.Infrastructure.Tests.Services
+namespace Aggregation.Backend.Infrastructure.Tests.Services
 {
     public class HttpClientWrapperTests
     {
-        private Mock<IHttpClientFactory> _httpClientFactoryMock = null!;
-        private Mock<ExternalApiRequestTimingCache> _timingCacheMock = null!;
-        private HttpClientWrapper<MockOptions> _wrapper = null!;
-        private Mock<HttpMessageHandler> _handlerMock = null!;
-        private MockOptions _options = new() { BaseUrl = "https://api.example.com" };
+        private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
+        private readonly HttpClientWrapper<MockOptions> _wrapper;
+        private readonly Mock<HttpMessageHandler> _handlerMock;
+        private readonly MockOptions _options = new() { BaseUrl = "https://api.example.com" };
 
         public HttpClientWrapperTests()
         {
@@ -29,9 +28,8 @@ namespace Agregation.Backend.Infrastructure.Tests.Services
                 .Setup(f => f.CreateClient(typeof(MockOptions).Name))
                 .Returns(httpClient);
 
-            _timingCacheMock = new Mock<ExternalApiRequestTimingCache>();
 
-            _wrapper = new HttpClientWrapper<MockOptions>(_httpClientFactoryMock.Object, _timingCacheMock.Object);
+            _wrapper = new HttpClientWrapper<MockOptions>(_httpClientFactoryMock.Object);
         }
 
         [Test]
@@ -77,7 +75,7 @@ namespace Agregation.Backend.Infrastructure.Tests.Services
             var result = await _wrapper.GetAsync("/data", CancellationToken.None);
 
             Assert.That(result, Is.Empty);
-            
+
         }
     }
 }

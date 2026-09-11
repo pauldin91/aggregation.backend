@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Agregation.Backend.Infrastructure.Tests.Helpers
+namespace Aggregation.Backend.Infrastructure.Tests.Helpers
 {
     public class MockOptions : IHttpClientApiKeyOptions
     {

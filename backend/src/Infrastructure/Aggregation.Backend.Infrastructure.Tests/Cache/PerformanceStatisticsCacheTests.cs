@@ -4,7 +4,7 @@ using Aggregation.Backend.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using Moq;
 
-namespace Agregation.Backend.Infrastructure.Tests.Cache
+namespace Aggregation.Backend.Infrastructure.Tests.Cache
 {
     public class PerformanceStatisticsCacheTests
     {

@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aggregation.Backend.Applica
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aggregation.Backend.Api.Tests", "src/WebApi/Aggregation.Backend.Api.Tests/Aggregation.Backend.Api.Tests.csproj", "{9A24F614-B504-4AF3-A752-66DECB54A2B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agregation.Backend.Infrastructure.Tests", "src/Infrastructure/Agregation.Backend.Infrastructure.Tests/Agregation.Backend.Infrastructure.Tests.csproj", "{F91C8B6E-0658-4F3D-9DF1-098959C01046}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aggregation.Backend.Infrastructure.Tests", "src/Infrastructure/Aggregation.Backend.Infrastructure.Tests/Aggregation.Backend.Infrastructure.Tests.csproj", "{F91C8B6E-0658-4F3D-9DF1-098959C01046}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

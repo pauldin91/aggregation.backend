@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json;
 
-namespace Agregation.Backend.Infrastructure.Tests.Services
+namespace Aggregation.Backend.Infrastructure.Tests.Services
 {
     public class AirPollutionServiceTests
     {

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace Aggregation.Backend.Infrastructure.Hosted
 {
-    public class StatisticsAnalyzerService(ILogger<StatisticsAnalyzerService> logger, IOptions<StatisticsAnalyzerServiceOptions> options, ExternalApiRequestTimingCache externalApiRequestTimingCache) : IHostedService
+    public class StatisticsAnalyzerService(ILogger<StatisticsAnalyzerService> logger, IOptions<StatisticsAnalyzerServiceOptions> options) : IHostedService
     {
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -21,7 +21,7 @@ namespace Aggregation.Backend.Infrastructure.Hosted
         {
             try
             {
-                var responseTimes = externalApiRequestTimingCache.GetResponseTimes();
+                var responseTimes = ExternalApiRequestTimingCache.GetResponseTimes();
                 foreach (var responseTime in responseTimes)
                 {
                     var avgPerformance = PerformanceStatisticsCache.AverageResponseTime;

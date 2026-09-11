@@ -1,27 +1,21 @@
 ﻿namespace Aggregation.Backend.WebApi.Middlewares
 {
-    public class ExceptionHandlingMiddleware
+    public class ExceptionHandlingMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
-        public ExceptionHandlingMiddleware(RequestDelegate next) 
-        { 
-            _next = next; 
-        }
-
         public async Task InvokeAsync(HttpContext context)
         {
             try
             {
-                await _next(context); 
+                await next(context);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                await HandleExceptionAsync(context, ex);
+                await HandleExceptionAsync(context);
 
             }
         }
 
-        private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private async Task HandleExceptionAsync(HttpContext context)
         {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
@@ -32,7 +26,7 @@
                 Message = "An unexpected error occurred.",
             };
 
-            return context.Response.WriteAsJsonAsync(errorResponse);
+            await context.Response.WriteAsJsonAsync(errorResponse, CancellationToken.None);
         }
 
 

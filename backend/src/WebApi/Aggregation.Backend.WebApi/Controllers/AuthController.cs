@@ -55,8 +55,6 @@ namespace Aggregation.Backend.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ExchangeCode([FromBody] CallbackBody? body, CancellationToken cancellationToken)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenOptions.SecretKey));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var tokenRequest = new HttpRequestMessage(HttpMethod.Post, _extIdProvider.TokenUrl)
             {
                 Content = new FormUrlEncodedContent(new Dictionary<string, string>

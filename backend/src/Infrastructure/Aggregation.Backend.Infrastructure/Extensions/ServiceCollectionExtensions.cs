@@ -72,7 +72,6 @@ namespace Aggregation.Backend.Infrastructure.Extensions
             services.AddTransient<IStockMarketFeedService, StockMarketFeedService>();
             services.AddHostedService<StatisticsAnalyzerService>();
             services.AddScoped<TokenGenerator>();
-            services.AddSingleton<ExternalApiRequestTimingCache>();
             services.AddSingleton<PerformanceStatisticsCache>();
             services.AddSingleton<ITokenGenerator,TokenGenerator>();
 

@@ -9,9 +9,9 @@ using Moq;
 
 public class StatisticsControllerTests
 {
-    private StatisticsController _controller = null!;
-    private PerformanceStatisticsCache _cache = null!;
-    private Mock<IOptions<BucketOptions>> _optionsMock = null;
+    private readonly StatisticsController _controller;
+    private readonly PerformanceStatisticsCache _cache;
+    private readonly Mock<IOptions<BucketOptions>> _optionsMock;
 
 
     public StatisticsControllerTests()
@@ -50,5 +50,5 @@ public class StatisticsControllerTests
         Assert.That(stats.AverageResponseTimeMs, Is.EqualTo((50 + 150 + 300) / 3));
     }
 
-    
+
 }

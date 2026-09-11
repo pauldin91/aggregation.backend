@@ -6,7 +6,7 @@ using System.Net;
 
 namespace Aggregation.Backend.Infrastructure.Services
 {
-    public class HttpClientWrapper<T>(IHttpClientFactory httpClientFactory, ExternalApiRequestTimingCache externalApiRequestTimingCache) : IHttpClientWrapper<T>
+    public class HttpClientWrapper<T>(IHttpClientFactory httpClientFactory) : IHttpClientWrapper<T>
         where T : IHttpClientApiKeyOptions, new()
     {
         private readonly HttpClient _httpClient = httpClientFactory.CreateClient(typeof(T).Name);
@@ -21,9 +21,9 @@ namespace Aggregation.Backend.Infrastructure.Services
             var response = await combinedPolicy.ExecuteAsync(() => _httpClient.SendAsync(request, cancellationToken));
 
             stopwatch.Stop();
-            externalApiRequestTimingCache.Record(_httpClient?.BaseAddress?.ToString(), stopwatch.ElapsedMilliseconds);
+            ExternalApiRequestTimingCache.Record(_httpClient?.BaseAddress?.ToString(), stopwatch.ElapsedMilliseconds);
 
-            var content = await response.Content.ReadAsStringAsync();
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
 
             if (response.IsSuccessStatusCode)
             {
