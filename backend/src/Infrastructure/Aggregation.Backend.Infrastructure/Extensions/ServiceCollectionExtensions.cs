@@ -1,5 +1,6 @@
 ﻿using Aggregation.Backend.Application.Interfaces;
 using Aggregation.Backend.Domain.Entities;
+using Aggregation.Backend.Domain.Interfaces;
 using Aggregation.Backend.Infrastructure.Cache;
 using Aggregation.Backend.Infrastructure.Data.Contexts;
 using Aggregation.Backend.Infrastructure.Helpers;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Http;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -72,12 +74,20 @@ namespace Aggregation.Backend.Infrastructure.Extensions
             services.AddScoped<TokenGenerator>();
             services.AddSingleton<ExternalApiRequestTimingCache>();
             services.AddSingleton<PerformanceStatisticsCache>();
+            services.AddSingleton<ITokenGenerator,TokenGenerator>();
 
-
-            
-            services.AddHttpClient("github", cfg =>
+            services.AddHttpClient(typeof(ExternalIdProviderOptions).Name, cfg =>
             {
-
+                cfg.BaseAddress = new Uri(extIdOptions.BaseUrl);
+                cfg.Timeout = TimeSpan.FromMinutes(1);
+            
+            }).ConfigurePrimaryHttpMessageHandler(cfg =>
+            {   
+                var handler = new HttpClientHandler()
+                {
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true,
+                };
+                return handler;
             });
 
 

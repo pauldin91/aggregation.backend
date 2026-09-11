@@ -1,4 +1,5 @@
 ﻿using Aggregation.Backend.Domain.Dtos.Auth;
+using Aggregation.Backend.Domain.Interfaces;
 using Aggregation.Backend.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -8,14 +9,15 @@ using System.Text;
 
 namespace Aggregation.Backend.Infrastructure.Helpers
 {
-    public class TokenGenerator(IOptions<JwtOptions> options)
+    public class TokenGenerator(IOptions<JwtOptions> options) : ITokenGenerator
     {
-        public TokenResponse GenerateJwtToken(string username)
+        public TokenResponse GenerateToken(UserInfoResponse userInfo)
         {
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, username),
-                new Claim(JwtRegisteredClaimNames.Email, username),
+                new Claim(JwtRegisteredClaimNames.Sub, userInfo.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, userInfo.Email),
+                new Claim(JwtRegisteredClaimNames.Name, userInfo.Name),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -29,7 +31,11 @@ namespace Aggregation.Backend.Infrastructure.Helpers
                 expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: creds);
 
-            return new TokenResponse { AccessToken = new JwtSecurityTokenHandler().WriteToken(token) };
+            return new TokenResponse
+            {
+                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+                Exp = token.IssuedAt.AddHours(1)
+            };
         }
     }
 }

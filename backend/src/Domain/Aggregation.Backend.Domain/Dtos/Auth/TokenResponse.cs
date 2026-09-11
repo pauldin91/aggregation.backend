@@ -3,5 +3,6 @@
     public class TokenResponse
     {
         public string AccessToken { get; set; }
+        public DateTime Exp { get; set; }
     }
 }
