@@ -64,7 +64,7 @@ namespace Aggregation.Backend.WebApi.Controllers
 
             var requestMessage = new HttpRequestMessage(HttpMethod.Get, "user");
             requestMessage.Headers.Add(HeaderNames.Authorization, string.Format("{0} {1}", "Bearer", tokenResult.AccessToken));
-            var userInfoResponse = await _client.SendAsync(requestMessage);
+            var userInfoResponse = await _client.SendAsync(requestMessage,cancellationToken);
             var userResult = await userInfoResponse.Content.ReadAsAsync<UserInfoResponse>();
 
 
